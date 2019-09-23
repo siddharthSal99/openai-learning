@@ -13,7 +13,7 @@ import numpy as np
 class SidCartpole(gym.Env):
 	"""
 	Description:
-		A pole is attached by an un-actuated joint to a cart, which moves along a frictionless track. The pendulum starts upright, and the goal is to prevent it from falling over by increasing and reducing the cart's velocity.
+		A pole is attached by an un-actuated joint to a cart, which moves along a track. The pendulum starts upright, and the goal is to prevent it from falling over by increasing and reducing the cart's velocity.
 	Source:
 		This environment corresponds to the version of the cart-pole problem described by Barto, Sutton, and Anderson
 	Observation:
@@ -57,7 +57,9 @@ class SidCartpole(gym.Env):
 		self.polemass_length = (self.masspole * self.length)
 		self.force_mag = 10.0
 		self.tau = 0.02  # seconds between state updates
-		self.kinematics_integrator = 'runge-kutta-4'
+		self.kinematics_integrator = 'none'
+		self.friction_pole = 0.01 #friction between pole and cart
+		self.friction_cart = 0.01 #friction between cart and ground
 
 		# Angle at which to fail the episode
 		self.theta_threshold_radians = 12 * 2 * math.pi / 360
@@ -91,16 +93,13 @@ class SidCartpole(gym.Env):
 		costheta = math.cos(theta)
 		sintheta = math.sin(theta)
 		temp = (force + self.polemass_length * theta_dot * theta_dot * sintheta) / self.total_mass
-		thetaacc = (self.gravity * sintheta - costheta* temp) / (self.length * (4.0/3.0 - self.masspole * costheta * costheta / self.total_mass))
-		xacc  = temp - self.polemass_length * thetaacc * costheta / self.total_mass
+		thetaacc = (self.gravity * sintheta - costheta* temp + costheta * self.friction_cart*np.sign(x_dot)/self.total_mass - self.friction_pole*theta_dot/self.polemass_length) / (self.length * (4.0/3.0 - self.masspole * costheta * costheta / self.total_mass))
+		xacc  = temp - self.polemass_length * thetaacc * costheta / self.total_mass - self.friction_cart * np.sign(x_dot) / self.total_mass
 		if self.kinematics_integrator == 'euler':
 			x  = x + self.tau * x_dot
 			x_dot = x_dot + self.tau * xacc
 			theta = theta + self.tau * theta_dot
 			theta_dot = theta_dot + self.tau * thetaacc
-		elif self.kinematics_integrator == 'runge-kutta-4':
-
-
 		else: # semi-implicit euler
 			x_dot = x_dot + self.tau * xacc
 			x  = x + self.tau * x_dot
@@ -189,3 +188,12 @@ class SidCartpole(gym.Env):
 		if self.viewer:
 			self.viewer.close()
 			self.viewer = None
+
+	def __runge_kutta(x0,y0,step,fun,x_acc):
+
+
+
+	def __euler(x0,y0,step,slope):
+		y1 = y0 + slope * step
+		x1 = x0 + step
+		return (x1,y1)
