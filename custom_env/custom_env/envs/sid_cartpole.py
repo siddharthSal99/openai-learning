@@ -189,11 +189,21 @@ class SidCartpole(gym.Env):
 			self.viewer.close()
 			self.viewer = None
 
-	def __runge_kutta(x0,y0,step,fun,x_acc):
+	def __runge_kutta(state,step,fun,x_acc):
+		k1 = fun(state)
+		k2 = fun(state(0) + step/2, state(1) + (step/2)*k1)
+		k3 = fun(state(0) + step/2, state(1) + (step/2)*k2)
+		k4 = fun(state(0) + step, state(1) + (step/2)*k3)
 
+		next_state = (state(0) + step, state(1) + (step/6)*(k1 + 2*k2 +2*k3 + k4))
+		return next_state
 
 
 	def __euler(x0,y0,step,slope):
 		y1 = y0 + slope * step
 		x1 = x0 + step
 		return (x1,y1)
+
+	def __dynamics(force,theta_dot,theta,x_dot):
+		pass
+
