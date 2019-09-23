@@ -21,16 +21,19 @@ class DQNAgent:
 
 
 
+def main():
+	env = gym.make("sid_cartpole-v0")
+	observation = env.reset()
+	for _ in range(MAX_EPS):
+		env.render()
+		action = env.action_space.sample() # your agent here (this takes random actions)
+		observation, reward, done, info = env.step(action)
+		print observation, reward, done, info
+		if done:
+			observation = env.reset()
+	env.close()
 
-env = gym.make("sid_cartpole-v0")
-observation = env.reset()
-for _ in range(MAX_EPS):
-	env.render()
-	action = env.action_space.sample() # your agent here (this takes random actions)
-	observation, reward, done, info = env.step(action)
-	print observation, reward, done, info
-	if done:
-		observation = env.reset()
-env.close()
 
+if __name__ == "__main__":
+	main()
 

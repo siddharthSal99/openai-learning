@@ -57,7 +57,7 @@ class SidCartpole(gym.Env):
 		self.polemass_length = (self.masspole * self.length)
 		self.force_mag = 10.0
 		self.tau = 0.02  # seconds between state updates
-		self.kinematics_integrator = 'euler'
+		self.kinematics_integrator = 'runge-kutta-4'
 
 		# Angle at which to fail the episode
 		self.theta_threshold_radians = 12 * 2 * math.pi / 360
@@ -98,6 +98,9 @@ class SidCartpole(gym.Env):
 			x_dot = x_dot + self.tau * xacc
 			theta = theta + self.tau * theta_dot
 			theta_dot = theta_dot + self.tau * thetaacc
+		elif self.kinematics_integrator == 'runge-kutta-4':
+
+
 		else: # semi-implicit euler
 			x_dot = x_dot + self.tau * xacc
 			x  = x + self.tau * x_dot
