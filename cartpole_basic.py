@@ -23,7 +23,7 @@ class DQNAgent:
 	def learn(self):
 		pass
 
-class QLearningAgent:
+# class QLearningAgent:
 
 
 
