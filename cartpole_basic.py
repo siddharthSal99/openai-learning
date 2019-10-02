@@ -40,7 +40,6 @@ def main():
 			observation = env.reset()
 	env.close()
 
-
 if __name__ == "__main__":
 	main()
 
