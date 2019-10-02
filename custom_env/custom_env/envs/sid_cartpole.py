@@ -72,7 +72,7 @@ class SidCartpole(gym.Env):
 			self.theta_threshold_radians * 2,
 			np.finfo(np.float32).max])
 
-		self.action_space = spaces.Discrete(2)
+		self.action_space = spaces.Box(low = 0, high = 100, shape = (1,1,1))
 		self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
 		self.seed()
@@ -89,7 +89,7 @@ class SidCartpole(gym.Env):
 		assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
 		state = self.state
 		x, x_dot, theta, theta_dot = state
-		force = self.force_mag if action==1 else -self.force_mag
+		force = self.force_mag * (1 - action/50)
 		costheta = math.cos(theta)
 		sintheta = math.sin(theta)
 		temp = (force + self.polemass_length * theta_dot * theta_dot * sintheta) / self.total_mass
