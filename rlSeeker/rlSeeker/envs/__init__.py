@@ -1,1 +1,1 @@
-from rlSeeker.envs.rlSeeker import rlSeeker
+from rlSeeker.envs.rlSeeker_env import RLSeeker

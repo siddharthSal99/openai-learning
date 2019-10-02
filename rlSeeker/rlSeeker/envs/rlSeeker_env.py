@@ -10,7 +10,7 @@ from gym import spaces, logger
 from gym.utils import seeding
 import numpy as np
 
-class SidCartpole(gym.Env):
+class RLSeeker(gym.Env):
 	"""
 	Description:
 		A pole is attached by an un-actuated joint to a cart, which moves along a track. The pendulum starts upright, and the goal is to prevent it from falling over by increasing and reducing the cart's velocity.
@@ -50,7 +50,7 @@ class SidCartpole(gym.Env):
 
 	def __init__(self,curr_loc = np.array([9,9]),
 				goal_loc = np.array([3.5,2.5]),
-				living_reward = 10,
+				living_reward = -10,
 				goal_reward = 10,
 				xLim = np.array([-10,10]),
 				yLim = np.array([-10,10]),
@@ -65,8 +65,8 @@ class SidCartpole(gym.Env):
 		self.goal_loc = goal_loc
 		self.curr_loc = curr_loc
 		self.discrete_step = discrete_step
-		self.xStates = np.arange(xLim[0],xlim[1],self.discrete_step)
-		self.yStates = np.arange(yLim[0],ylim[1],self.discrete_step)
+		self.xStates = np.arange(self.xLim[0],self.xLim[1],self.discrete_step)
+		self.yStates = np.arange(self.yLim[0],self.yLim[1],self.discrete_step)
 
 		self.action_space = spaces.Discrete(4) #['North', 'South','East','West']
 		self.action_list = {'North':np.array([0,discrete_step]),
@@ -85,21 +85,21 @@ class SidCartpole(gym.Env):
 			raise ValueError('Invalid action')
 		if action == 0:
 			#implement noise here
-			self.curr_loc = self.curr_loc + action_list['North']
+			self.curr_loc = self.curr_loc + self.action_list['North']
 		elif action == 1:
-			self.curr_loc = self.curr_loc + action_list['South']
+			self.curr_loc = self.curr_loc + self.action_list['South']
 		elif action == 2:
-			self.curr_loc = self.curr_loc + action_list['East']
+			self.curr_loc = self.curr_loc + self.action_list['East']
 		elif action == 3:
-			self.curr_loc = self.curr_loc + action_list['West']
-		__checkBounds()
+			self.curr_loc = self.curr_loc + self.action_list['West']
+		self.__checkBounds()
 		reward = 0;
-		if __atGoal():
+		if self.__atGoal():
 			reward = self.goal_reward
 		else:
 			reward = self.living_reward
 
-		return self.curr_loc, reward, __atGoal(), {}
+		return self.curr_loc, reward, self.__atGoal(), {}
 
 
 	def reset(self):
@@ -116,30 +116,33 @@ class SidCartpole(gym.Env):
 		screen_height = 400
 
 		world_width = (self.xLim[1] - self.xLim[0])*1.25
-		agentRad = 1 * scale
+
 		scale = screen_width/world_width
+		agentRad = 1 * scale
 		if self.viewer is None:
 			from gym.envs.classic_control import rendering
 			self.viewer = rendering.Viewer(screen_width,screen_height)
 			agent = rendering.make_circle(radius = agentRad, res = 30)
 			self.agenttrans = rendering.Transform()
 			agent.add_attr(self.agenttrans)
-			self.viewer.add_geom(agent)
 			agent.set_color(0.6,0,0)
 			pos = self.curr_loc
 			agentX = pos[0]*scale + screen_width / 2
 			agentY = pos[1]*scale + screen_height / 2
-			self.carttrans.set_translation(agentX, agentY)
+			self.agenttrans.set_translation(agentX, agentY)
+			self.viewer.add_geom(agent)
+
 
 
 			self.goal = rendering.make_circle(radius = agentRad, res = 30)
 			self.goaltrans = rendering.Transform()
-			goal.add_attr(self.goaltrans)
+			self.goal.add_attr(self.goaltrans)
 			goalX = self.goal_loc[0]*scale + screen_width / 2
 			goalY = self.goal_loc[1]*scale + screen_height / 2
 			self.goal.set_color(0,1,0)
+			self.goaltrans.set_translation(goalX, goalY)
 			self.viewer.add_geom(self.goal)
-			self.carttrans.set_translation(goalX, goalY)
+
 			return self.viewer.render(return_rgb_array = mode=='rgb_array')
 
 
@@ -195,23 +198,23 @@ class SidCartpole(gym.Env):
 			self.viewer.close()
 			self.viewer = None
 
-	def __checkBounds():
-		xBoundLower = self.curr_loc[0] < xLim[0]
-		xBoundUpper = self.curr_loc[0] > xLim[1]
-		yBoundLower = self.curr_loc[1] < yLim[0]
-		yBoundUpper = self.curr_loc[1] > yLim[1]
+	def __checkBounds(self):
+		xBoundLower = self.curr_loc[0] < self.xLim[0]
+		xBoundUpper = self.curr_loc[0] > self.xLim[1]
+		yBoundLower = self.curr_loc[1] < self.yLim[0]
+		yBoundUpper = self.curr_loc[1] > self.yLim[1]
 		if xBoundUpper:
-			self.curr_loc[0] = xLim[1]
+			self.curr_loc[0] = self.xLim[1]
 		elif xBoundLower:
-			self.curr_loc[0] = xLim[0]
+			self.curr_loc[0] = self.xLim[0]
 
-		if xBoundUpper:
-			self.curr_loc[1] = yLim[1]
-		elif xBoundLower:
-			self.curr_loc[1] = yLim[0]
+		if yBoundUpper:
+			self.curr_loc[1] = self.yLim[1]
+		elif yBoundLower:
+			self.curr_loc[1] = self.yLim[0]
 
-	def __atGoal():
-		return min(self.curr_loc == self.goal_loc):
+	def __atGoal(self):
+		return min(self.curr_loc == self.goal_loc)
 
 
 
