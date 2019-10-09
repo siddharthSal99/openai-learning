@@ -127,23 +127,33 @@ class RLSeeker(gym.Env):
 			agent.add_attr(self.agenttrans)
 			agent.set_color(0.6,0,0)
 			pos = self.curr_loc
-			agentX = pos[0]*scale + screen_width / 2
-			agentY = pos[1]*scale + screen_height / 2
-			self.agenttrans.set_translation(agentX, agentY)
-			self.viewer.add_geom(agent)
 
 
 
 			self.goal = rendering.make_circle(radius = agentRad, res = 30)
 			self.goaltrans = rendering.Transform()
 			self.goal.add_attr(self.goaltrans)
+			self.goal.set_color(0,1,0)
+
 			goalX = self.goal_loc[0]*scale + screen_width / 2
 			goalY = self.goal_loc[1]*scale + screen_height / 2
-			self.goal.set_color(0,1,0)
 			self.goaltrans.set_translation(goalX, goalY)
+			agentX = pos[0]*scale + screen_width / 2
+			agentY = pos[1]*scale + screen_height / 2
+			self.agenttrans.set_translation(agentX, agentY)
 			self.viewer.add_geom(self.goal)
+			self.viewer.add_geom(agent)
 
-			return self.viewer.render(return_rgb_array = mode=='rgb_array')
+		pos = self.curr_loc
+		goalX = self.goal_loc[0]*scale + screen_width / 2
+		goalY = self.goal_loc[1]*scale + screen_height / 2
+		self.goaltrans.set_translation(goalX, goalY)
+		agentX = pos[0]*scale + screen_width / 2
+		agentY = pos[1]*scale + screen_height / 2
+		self.agenttrans.set_translation(agentX, agentY)
+
+
+		return self.viewer.render(return_rgb_array = mode=='rgb_array')
 
 
 		# carty = 100 # TOP OF CART
